@@ -53,9 +53,11 @@ class RecognitionModule:
         self.tolerance = tolerance
         self.frame_thickness = frame_thickness
         self.font_thickness = font_thickness
+
+        self.product_data_source = None
+
         self.known_faces_encodings = []
         self.known_names = []
-        self.known_barcodes = {}
 
     def load_known_faces(self, known_faces_dir, force_rebuild: bool = False):
         """
@@ -75,23 +77,13 @@ class RecognitionModule:
         print("Building the cache...")
         self.create_face_encodings(known_faces_dir, cache_file)
 
-    def load_known_barcodes(self, csv_file_path):
+    def set_product_data_source(self, database_context):
         """
         Load known barcodes from a CSV file into a dictionary.
 
         The CSV file should have two columns: barcode data and the associated name or information.
         """
-        try:
-            with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.reader(csvfile)
-                for row in reader:
-                    if row:
-                        barcode_data, associated_info = row
-                        self.known_barcodes[barcode_data] = associated_info
-        except FileNotFoundError:
-            print(f"File not found: {csv_file_path}")
-        except Exception as e:
-            print(f"Error loading known barcodes: {e}")
+        self.product_data_source = database_context
 
     def create_face_encodings(self, known_faces_dir, cache_file: str):
         """
@@ -188,7 +180,16 @@ class RecognitionModule:
                 continue
 
             decoded_data = decoded_barcode.data.decode()
-            label = self.known_barcodes.get(decoded_data, decoded_data)
+            product_id = None
+
+            if self.product_data_source is not None:
+                product_id = self.product_data_source.barcodes.get(decoded_data)
+
+            if product_id is not None:
+                product = self.product_data_source.products[product_id]
+                label = f"{product['name']}, {product['price']}"
+            else:
+                label = decoded_data
 
             top_left = (decoded_barcode.rect.left, decoded_barcode.rect.top)
             bottom_right = (decoded_barcode.rect.left + decoded_barcode.rect.width,
