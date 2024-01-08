@@ -3,7 +3,6 @@ import face_recognition
 import os
 import pickle
 import cv2
-import csv
 import numpy as np
 from pyzbar.pyzbar import decode
 
@@ -30,7 +29,6 @@ class RecognitionModule:
             font_thickness (int): The thickness of the font when labeling faces and barcodes.
             known_faces_encodings (list): List of known faces encodings.
             known_names (list): List of known face names.
-            known_barcodes (dict): Dictionary of known barcode data and associated information.
 
         Methods:
             load_known_faces(known_faces_dir, force_rebuild=False):
@@ -107,22 +105,15 @@ class RecognitionModule:
         with open(cache_file, 'wb') as f:
             pickle.dump({'encodings': self.known_faces_encodings, 'names': self.known_names}, f)
 
-    def detect_on_camera(self, video: cv2.VideoCapture):
+    def detect_on_image(self, image):
         """
-        Try to detect the known faces (and all the rest) using the given VideoCapture instance.
+        Try to detect the known faces and recognized barcodes on the provided image.
         """
-        print("Detecting on camera...")
-        while True:
-            ret, image = video.read()
-            locations = face_recognition.face_locations(image, model=self.model)
-            encodings = face_recognition.face_encodings(image, locations)
+        locations = face_recognition.face_locations(image, model=self.model)
+        encodings = face_recognition.face_encodings(image, locations)
 
-            self.__recognize_faces(image, locations, encodings)
-            self.__detect_barcodes(image)
-
-            cv2.imshow("Camera Video", image)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+        self.__recognize_faces(image, locations, encodings)
+        self.__detect_barcodes(image)
 
     def test_on_face_images(self, test_dir: str):
         """
@@ -150,6 +141,7 @@ class RecognitionModule:
         for filename in os.listdir(test_dir):
             print(filename)
             image = cv2.imread(os.path.join(test_dir, filename))
+            image = cv2.resize(image, (800, 600))
 
             self.__detect_barcodes(image)
 
@@ -250,7 +242,7 @@ class RecognitionModule:
         return [(ord(c.lower()) - 97) * 8 for c in string[:3]]
 
     @staticmethod
-    def __darken_color(old_color: list[int], factor: float = 0.5) -> tuple[int]:
+    def __darken_color(old_color: list[int], factor: float = 0.5) -> tuple[int, ...]:
         """
         Darken a given color by a factor.
         Factor should be between 0 and 1, where 0 is black and 1 is the original color.
