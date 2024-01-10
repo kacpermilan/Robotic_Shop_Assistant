@@ -1,17 +1,23 @@
 import cv2
 import configparser
 from database_module import DatabaseModule
+from llm_module import LlmModule
 from recognition_module import RecognitionModule
 
 # Read config
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+db_username = config.get('ROBOTIC_SHOP_ASSISTANT', 'DB_USERNAME')
+db_password = config.get('ROBOTIC_SHOP_ASSISTANT', 'DB_PASSWORD')
+use_local_llm = config.getboolean("ROBOTIC_SHOP_ASSISTANT", "USE_LOCAL_LLM")
+llm_path = config.get("ROBOTIC_SHOP_ASSISTANT", "LOCAL_LLM_PATH")
+layers_on_gpu = config.getint("ROBOTIC_SHOP_ASSISTANT", "N_GPU_LAYERS")
+
 # Initialize components
 video = cv2.VideoCapture(0)
-database_module = DatabaseModule("localhost", "robotic_shop_assistant",
-                                 config.get('ROBOTIC_SHOP_ASSISTANT', 'DB_USERNAME'),
-                                 config.get('ROBOTIC_SHOP_ASSISTANT', 'DB_PASSWORD'))
+database_module = DatabaseModule("localhost", "robotic_shop_assistant", db_username, db_password)
+llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
 
 # Prepare data
@@ -34,3 +40,4 @@ while True:
     elif key_pressed == ord("q"):
         break
 
+video.release()

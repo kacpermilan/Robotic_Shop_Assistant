@@ -1,4 +1,5 @@
 /barcodes/
 /known_faces/
 /unknown_faces/
+/llama.cpp/
 config.ini
