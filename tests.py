@@ -1,15 +1,12 @@
 import unittest
 import configparser
 import os
-import torch
 import cv2
 import face_recognition
 from database_module import DatabaseModule
 from llm_module import LlmModule
 from recognition_module import RecognitionModule
 from visualization_module import VisualizationModule
-
-del torch
 
 
 class TestProductRecognition(unittest.TestCase):

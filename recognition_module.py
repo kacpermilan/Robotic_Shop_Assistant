@@ -3,7 +3,6 @@ import face_recognition
 import os
 import pickle
 from pyzbar.pyzbar import decode
-del torch
 
 
 # Notatka do mnie z przyszłości.
