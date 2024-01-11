@@ -7,12 +7,16 @@ import face_recognition
 from database_module import DatabaseModule
 from llm_module import LlmModule
 from recognition_module import RecognitionModule
+from visualization_module import VisualizationModule
+
 del torch
+
 
 class TestProductRecognition(unittest.TestCase):
     recognition_module = None
     database_module = None
     local_llm = None
+    visualization_module = None
 
     @classmethod
     def setUpClass(cls):
@@ -29,6 +33,8 @@ class TestProductRecognition(unittest.TestCase):
         cls.recognition_module = RecognitionModule(tolerance=0.575)
         cls.recognition_module.set_product_data_source(cls.database_module)
 
+        cls.visualization_module = VisualizationModule()
+
     def test_known_faces(self):
         """
         Test the currently stored known faces encodings using the images in a given test directory.
@@ -41,7 +47,7 @@ class TestProductRecognition(unittest.TestCase):
             print(filename)
             image = face_recognition.load_image_file(os.path.join(test_dir, filename))
             faces = self.recognition_module.detect_faces(image)
-            self.recognition_module.display_detected_objects(image, detected_faces=faces)
+            self.visualization_module.display_detected_objects(image, detected_faces=faces)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
             cv2.imshow(filename, image)
@@ -62,7 +68,7 @@ class TestProductRecognition(unittest.TestCase):
             image = cv2.resize(image, (800, 600))
 
             products = self.recognition_module.detect_products(image)
-            self.recognition_module.display_detected_objects(image, detected_barcodes=products)
+            self.visualization_module.display_detected_objects(image, detected_barcodes=products)
 
             cv2.imshow(filename, image)
             cv2.waitKey(0)

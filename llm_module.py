@@ -2,8 +2,6 @@ from llama_cpp import Llama
 
 
 class LlmModule:
-    llm = None
-
     def __init__(self, llm_path, layers_on_gpu=0):
         self.llm = Llama(model_path=llm_path,
                          n_gpu_layers=layers_on_gpu,
