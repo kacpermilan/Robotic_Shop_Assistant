@@ -25,7 +25,8 @@ video.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
 database = DatabaseModule("localhost", "robotic_shop_assistant", db_username, db_password)
 llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
-visualization_module = VisualizationModule()
+gui = VisualizationModule()
+cart = []
 
 # Prepare data
 database.refresh_data()
@@ -39,8 +40,8 @@ while True:
     ret, image = video.read()
     detected_people = recognition_module.detect_faces(image)
     detected_products = recognition_module.detect_products(image)
-    visualization_module.display_detected_objects(image, detected_people, detected_products)
-    visualization_module.display_gui(image, 100)
+    gui.display_detected_objects(image, detected_people, detected_products)
+    gui.display_gui(image, cart)
     cv2.imshow("Camera Video", image)
 
     # Control section
@@ -52,8 +53,14 @@ while True:
         print("Refreshing data...")
         database.refresh_data()
     elif key_pressed == ord("a"):
-        print("Adding product to the list...")
+        print("Adding product to the cart...")
+        for decoded_barcode, product in detected_products:
+            cart.append(product)
     elif key_pressed == ord("c"):
-        print("Clearing the list...")
+        print("Clearing the cart...")
+        cart.clear()
+    elif key_pressed == ord("s"):
+        print("Showing/Hiding the cart...")
+        gui.toogle_shopping_list_visibility()
 
 video.release()
