@@ -30,14 +30,19 @@ recognition_module.set_product_data_source(database_module)
 print("Detecting on camera...")
 while True:
     ret, image = video.read()
-    recognition_module.detect_on_image(image)
+    detected_people = recognition_module.detect_faces(image)
+    detected_products = recognition_module.detect_products(image)
+    recognition_module.display_detected_objects(image, detected_people, detected_products)
     cv2.imshow("Camera Video", image)
 
     key_pressed = cv2.waitKey(1) & 0xFF
-    if key_pressed == ord("r"):
+    if key_pressed == ord("q"):
+        break
+    elif key_pressed == ord("r"):
         print("Refreshing data...")
         database_module.refresh_data()
-    elif key_pressed == ord("q"):
-        break
+    elif key_pressed == ord("a"):
+        # TODO adding the product and displaying the current cost on the panel
+        pass
 
 video.release()
