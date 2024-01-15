@@ -51,7 +51,7 @@ class CommunicationModule:
         channels = 1
         rate = 16000
         chunk = 1024
-        record_seconds = 5
+        record_seconds = 2
 
         stream = self.audio.open(format=audio_format,
                                  channels=channels,

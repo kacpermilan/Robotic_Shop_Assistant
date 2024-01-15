@@ -1,6 +1,7 @@
 import cv2
 import configparser
 import queue
+from control_module import ControlModule
 from communication_module import CommunicationModule
 from database_module import DatabaseModule
 from llm_module import LlmModule
@@ -20,11 +21,45 @@ llm_path = config.get("ROBOTIC_SHOP_ASSISTANT", "LOCAL_LLM_PATH")
 layers_on_gpu = config.getint("ROBOTIC_SHOP_ASSISTANT", "N_GPU_LAYERS")
 tts_model_name = config.get("ROBOTIC_SHOP_ASSISTANT", "TTS_MODEL_NAME")
 
+
+# Prepare command mapping
+def refresh_database():
+    interface.say("Refreshing data...")
+    database.refresh_data()
+
+
+def add_to_cart():
+    interface.say("Adding product to the cart...")
+    for decoded_barcode, product in detected_products:
+        cart.append(product)
+
+
+def clear_cart():
+    interface.say("Clearing the cart...")
+    cart.clear()
+
+
+def toggle_shopping_list():
+    interface.say("Toggling the shopping list...")
+    gui.toogle_shopping_list_visibility()
+
+
+command_mapping = {
+    "quit": lambda: None,
+    "refresh": lambda: refresh_database(),
+    "add": lambda: add_to_cart(),
+    "clear": lambda: clear_cart(),
+    "list": lambda: toggle_shopping_list(),
+    "buy": lambda: interface.say(f"{VisualizationModule.calculate_total_cost(cart):.2f} [PLN]"),
+    "voice": lambda: interface.hear(stt_queue),
+}
+
 # Initialize components
 video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 video.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
 video.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
 
+controller = ControlModule(command_mapping)
 database = DatabaseModule("localhost", "robotic_shop_assistant", db_username, db_password)
 # llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
@@ -41,7 +76,8 @@ recognition_module.set_product_data_source(database)
 
 # Start operating
 interface.say("Turning on...")
-while True:
+terminate_loop = False
+while not terminate_loop:
     ret, image = video.read()
     detected_people = recognition_module.detect_faces(image)
     detected_products = recognition_module.detect_products(image)
@@ -49,35 +85,16 @@ while True:
     gui.display_gui(image, cart)
     cv2.imshow("Camera Video", image)
 
-    try:
-        result = stt_queue.get_nowait()
-        interface.say(result)
-    except queue.Empty:
-        pass
-
-    # Control section
+    # Handle keyboard interface
     key_pressed = cv2.waitKey(1) & 0xFF
-    if key_pressed == ord("q"):
-        interface.say("Turning off...")
-        break
-    elif key_pressed == ord("r"):
-        interface.say("Refreshing data...")
-        database.refresh_data()
-    elif key_pressed == ord("a"):
-        interface.say("Adding product to the cart...")
-        for decoded_barcode, product in detected_products:
-            cart.append(product)
-    elif key_pressed == ord("c"):
-        interface.say("Clearing the cart...")
-        cart.clear()
-    elif key_pressed == ord("s"):
-        interface.say("Toggling the shopping list...")
-        gui.toogle_shopping_list_visibility()
-    elif key_pressed == ord("b"):
-        interface.say(f"{VisualizationModule.calculate_total_cost(cart):.2f} [PLN]")
-    elif key_pressed == ord("v"):
-        # interface.say("Turning the voice input mode for next command...")
-        interface.hear(stt_queue)
+    if key_pressed != 255:
+        terminate_loop = controller.handle_key_press(key_pressed)
 
+    # Handle voice interface
+    if not stt_queue.empty():
+        stt_result = stt_queue.get_nowait()
+        terminate_loop = controller.handle_stt_input(stt_result)
+
+interface.say("Turning off...")
 video.release()
 cv2.destroyAllWindows()
