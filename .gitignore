@@ -4,3 +4,4 @@
 /llama.cpp/
 config.ini
 tts_cache.wav
+stt_cache.wav

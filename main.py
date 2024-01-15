@@ -1,5 +1,6 @@
 import cv2
 import configparser
+import queue
 from communication_module import CommunicationModule
 from database_module import DatabaseModule
 from llm_module import LlmModule
@@ -25,10 +26,11 @@ video.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
 video.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
 
 database = DatabaseModule("localhost", "robotic_shop_assistant", db_username, db_password)
-llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
+# llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
 gui = VisualizationModule()
 interface = CommunicationModule(tts_model_name)
+stt_queue = queue.Queue()
 cart = []
 
 # Prepare data
@@ -46,6 +48,12 @@ while True:
     gui.display_detected_objects(image, detected_people, detected_products)
     gui.display_gui(image, cart)
     cv2.imshow("Camera Video", image)
+
+    try:
+        result = stt_queue.get_nowait()
+        interface.say(result)
+    except queue.Empty:
+        pass
 
     # Control section
     key_pressed = cv2.waitKey(1) & 0xFF
@@ -65,5 +73,11 @@ while True:
     elif key_pressed == ord("s"):
         interface.say("Toggling the shopping list...")
         gui.toogle_shopping_list_visibility()
+    elif key_pressed == ord("b"):
+        interface.say(f"{VisualizationModule.calculate_total_cost(cart):.2f} [PLN]")
+    elif key_pressed == ord("v"):
+        # interface.say("Turning the voice input mode for next command...")
+        interface.hear(stt_queue)
 
 video.release()
+cv2.destroyAllWindows()

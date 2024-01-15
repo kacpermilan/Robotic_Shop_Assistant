@@ -41,13 +41,18 @@ class VisualizationModule:
         tc_box_y = image.shape[0] - box_height
         cv2.rectangle(gui, (tc_box_x, tc_box_y), (tc_box_x + box_width, tc_box_y + box_height), self.gui_colour, -1)
 
+        rect_x = 0
+        rect_y = 0
         if self.show_shopping_list:
-            rect_x = 0
-            rect_y = 0
             rect_height = image.shape[0]
             rect_width = image.shape[1] // 2
             cv2.rectangle(gui, (rect_x, rect_y), (rect_x + rect_width, rect_y + rect_height), self.gui_colour, -1)
 
+        alpha = 0.5
+        mask = gui.astype(bool)
+        image[mask] = cv2.addWeighted(image, alpha, gui, 1 - alpha, 0)[mask]
+
+        if self.show_shopping_list:
             element_x = 10
             element_y = 30
             for product in cart:
@@ -55,11 +60,7 @@ class VisualizationModule:
                             cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.text_colour, self.font_thickness)
                 element_y += 30
 
-        alpha = 0.5
-        mask = gui.astype(bool)
-        image[mask] = cv2.addWeighted(image, alpha, gui, 1 - alpha, 0)[mask]
-
-        total_cost = self.__calculate_total_cost(cart)
+        total_cost = self.calculate_total_cost(cart)
         text = f'Total: {total_cost:.2f} [PLN]'
         text_x = tc_box_x + 10
         text_y = tc_box_y + 30
@@ -67,7 +68,7 @@ class VisualizationModule:
                     self.font_size, self.text_colour, self.font_thickness)
 
     @staticmethod
-    def __calculate_total_cost(cart):
+    def calculate_total_cost(cart):
         total_cost = Decimal(0)
         for product in cart:
             total_cost += Decimal(product['price'])
