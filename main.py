@@ -61,7 +61,7 @@ video.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
 
 controller = ControlModule(command_mapping)
 database = DatabaseModule("localhost", "robotic_shop_assistant", db_username, db_password)
-# llm = LlmModule(llm_path=llm_path, layers_on_gpu=layers_on_gpu)
+llm = LlmModule(llm_path=llm_path, mapping=command_mapping, layers_on_gpu=layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
 gui = VisualizationModule()
 interface = CommunicationModule(tts_model_name)
@@ -93,7 +93,10 @@ while not terminate_loop:
     # Handle voice interface
     if not stt_queue.empty():
         stt_result = stt_queue.get_nowait()
-        terminate_loop = controller.handle_stt_input(stt_result)
+        print(stt_result)
+        llm_processed_result = llm.obtain_command_from_stt(stt_result)
+        print(llm_processed_result)
+        terminate_loop = controller.handle_stt_input(llm_processed_result)
 
 interface.say("Turning off...")
 video.release()

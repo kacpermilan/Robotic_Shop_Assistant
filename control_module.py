@@ -1,5 +1,3 @@
-import re
-
 class ControlModule:
     def __init__(self, command_mapping):
         self.command_mapping = command_mapping
@@ -30,7 +28,5 @@ class ControlModule:
 
         return False
 
-    def handle_stt_input(self, stt_result):
-        stt_result = re.sub(r'[^a-zA-Z]', '', stt_result).lower()
-        print(stt_result)
-        return self.execute_command(stt_result)
+    def handle_stt_input(self, command):
+        return self.execute_command(command)
