@@ -1,16 +1,28 @@
 import cv2
 import numpy as np
-from decimal import Decimal
 
 
-class VisualizationModule:
-    def __init__(self, frame_thickness=2, font_thickness=2, font_size=0.6, gui_colour=(255, 255, 255)):
+class GUIModule:
+    def __init__(self, camera_width, camera_height, frame_thickness=2, font_thickness=2, font_size=0.6, gui_colour=(255, 255, 255)):
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
+        self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
+
         self.frame_thickness = frame_thickness
         self.font_thickness = font_thickness
         self.font_size = font_size
         self.gui_colour = gui_colour
         self.text_colour = (0, 0, 0)
         self.show_shopping_list = False
+
+    def __del__(self):
+        self.video.release()
+        cv2.destroyAllWindows()
+
+    def get_image_frame(self):
+        ret, image = self.video.read()
+        key_pressed = cv2.waitKey(1) & 0xFF
+        return image, key_pressed
 
     def display_detected_objects(self, image, detected_faces=None, detected_barcodes=None):
         if detected_barcodes is None:
@@ -33,7 +45,7 @@ class VisualizationModule:
     def toogle_shopping_list_visibility(self):
         self.show_shopping_list = not self.show_shopping_list
 
-    def display_gui(self, image, cart: list):
+    def render_gui(self, image, cart: list, total_cost):
         gui = np.zeros_like(image, np.uint8)
         box_width = 200
         box_height = 50
@@ -60,19 +72,13 @@ class VisualizationModule:
                             cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.text_colour, self.font_thickness)
                 element_y += 30
 
-        total_cost = self.calculate_total_cost(cart)
         text = f'Total: {total_cost:.2f} [PLN]'
         text_x = tc_box_x + 10
         text_y = tc_box_y + 30
         cv2.putText(image, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX,
                     self.font_size, self.text_colour, self.font_thickness)
 
-    @staticmethod
-    def calculate_total_cost(cart):
-        total_cost = Decimal(0)
-        for product in cart:
-            total_cost += Decimal(product['price'])
-        return total_cost
+        cv2.imshow("Camera Video", image)
 
     def __mark_face(self, image, face_location, label):
         """

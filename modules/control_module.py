@@ -21,7 +21,7 @@ class ControlModule:
 
         return False
 
-    def handle_key_press(self, key_pressed):
+    def handle_keyboard_input(self, key_pressed):
         command = self.key_to_command.get(key_pressed)
         if command:
             return self.execute_command(command)

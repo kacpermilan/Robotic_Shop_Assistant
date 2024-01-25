@@ -7,7 +7,9 @@ class LlmModule:
                          n_gpu_layers=layers_on_gpu,
                          use_mlock=True)
 
-        self.mapping_keys = ', '.join(mapping.keys())
+        if mapping is not None:
+            self.mapping_keys = ', '.join(mapping.keys())
+
         self.max_tokens = 5
         self.stop = [".", ",", ";", "\n"]
         self.temperature = 0.15

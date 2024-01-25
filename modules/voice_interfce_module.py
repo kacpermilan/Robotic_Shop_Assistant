@@ -1,15 +1,17 @@
-import torch
 import pyaudio
-import wave
+import queue
 import threading
+import torch
+import wave
 import whisper
 from TTS.api import TTS
 
 
-class CommunicationModule:
+class VoiceInterfaceModule:
     def __init__(self, model_name):
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        self.stt_queue = queue.Queue()
         self.tts_cache_file_name = "tts_cache.wav"
         self.stt_cache_file_name = "stt_cache.wav"
         self.tts = TTS(model_name=model_name).to(device)
@@ -22,13 +24,17 @@ class CommunicationModule:
         except TypeError:
             pass
 
+    def say_and_execute(self, sentence, function, *args, **kwargs):
+        self.say(sentence)
+        function(*args, **kwargs)
+
     def say(self, sentence):
         self.tts.tts_to_file(text=sentence, file_path=self.tts_cache_file_name)
         say_thread = threading.Thread(target=self.__play_cached_audio)
         say_thread.start()
 
-    def hear(self, return_queue):
-        hear_thread = threading.Thread(target=self.__capture_voice_and_process, args=(return_queue,))
+    def hear(self):
+        hear_thread = threading.Thread(target=self.__capture_voice_and_process, args=(self.stt_queue,))
         hear_thread.start()
 
     def __play_cached_audio(self):
