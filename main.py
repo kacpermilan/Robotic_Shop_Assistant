@@ -5,7 +5,7 @@ from modules.llm_module import LlmModule
 from modules.shopping_module import ShoppingModule
 from modules.settings_module import SettingsModule
 from modules.recognition_module import RecognitionModule
-from modules.voice_interfce_module import VoiceInterfaceModule
+from modules.voice_interface_module import VoiceInterfaceModule
 
 # Prepare command mapping
 command_mapping = {

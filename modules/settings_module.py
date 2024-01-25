@@ -2,6 +2,31 @@ import configparser
 
 
 class SettingsModule:
+    """
+    A class to handle settings for a robotic shop assistant.
+
+    Attributes:
+    -----------
+    camera_width : float
+        The width of the camera used by the robotic assistant.
+    camera_height : float
+        The height of the camera used by the robotic assistant.
+    db_username : str
+        The username for the database connection.
+    db_password : str
+        The password for the database connection.
+    use_local_llm : bool
+        A flag to determine if a local large language model should be used.
+    llm_path : str
+        The file path for the local large language model.
+    layers_on_gpu : int
+        The number of layers of the model to be loaded on GPU.
+    tts_model_name : str
+        The name of the Text-to-Speech model.
+    stt_model_name : str
+        The name of the Speech-to-Text model.
+    """
+
     def __init__(self, config_file):
         config = configparser.ConfigParser()
         config.read(config_file)

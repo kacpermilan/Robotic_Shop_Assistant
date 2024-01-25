@@ -10,32 +10,35 @@ from pyzbar.pyzbar import decode
 # https://gist.github.com/nguyenhoan1988/ed92d58054b985a1b45a521fcf8fa781
 class RecognitionModule:
     """
-        The `RecognitionModule` class provides functionality for face recognition and barcode detection.
+    The `RecognitionModule` class provides functionality for face recognition and barcode detection.
 
-        Args:
-            model (str): The model to use for face recognition. Default is "cnn".
-            tolerance (float): The tolerance value for face recognition. Default is 0.5.
+    Args:
+    --------
+    model (str): The model to use for face recognition. Default is "cnn".
+    tolerance (float): The tolerance value for face recognition. Default is 0.5.
 
-        Attributes:
-            model (str): The model used for face recognition.
-            tolerance (float): The tolerance value for face recognition.
-            known_faces_encodings (list): List of known faces encodings.
-            known_names (list): List of known face names.
+    Attributes:
+    --------
+    model (str): The model used for face recognition.
+    tolerance (float): The tolerance value for face recognition.
+    known_faces_encodings (list): List of known faces encodings.
+    known_names (list): List of known face names.
 
-        Methods:
-            load_known_faces(known_faces_dir, force_rebuild=False):
-                Load known faces encodings from a faces directory's cache file,
-                or create a new cache based on its contents.
-            load_known_barcodes(csv_file_path):
-                Load known barcodes from a CSV file into a dictionary.
-            create_face_encodings(known_faces_dir, cache_file):
-                Build a new face encodings, based on the faces found in the given directory,
-                and store them in the cache file.
-            detect_on_camera(video): Try to detect the known faces (and all the rest) using the
-                                     given VideoCapture instance.
-            test_on_unknown_faces(test_dir):
-                Test the currently stored known faces encodings with the images in a given test directory.
-            test_on_barcode_images(test_dir): Test the barcode detection against the images in a given test directory.
+    Methods:
+    --------
+    load_known_faces(known_faces_dir, force_rebuild=False):
+        Load known faces encodings from a faces directory's cache file,
+        or create a new cache based on its contents.
+    load_known_barcodes(csv_file_path):
+        Load known barcodes from a CSV file into a dictionary.
+    create_face_encodings(known_faces_dir, cache_file):
+        Build a new face encodings, based on the faces found in the given directory,
+        and store them in the cache file.
+    detect_on_camera(video): Try to detect the known faces (and all the rest) using the
+                             given VideoCapture instance.
+    test_on_unknown_faces(test_dir):
+        Test the currently stored known faces encodings with the images in a given test directory.
+    test_on_barcode_images(test_dir): Test the barcode detection against the images in a given test directory.
     """
     def __init__(self, model="cnn", tolerance=0.5):
         self.model = model

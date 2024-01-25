@@ -2,6 +2,7 @@ import unittest
 import configparser
 import os
 import cv2
+import torch
 import face_recognition
 from modules.database_module import DatabaseModule
 from modules.llm_module import LlmModule
@@ -30,7 +31,7 @@ class TestProductRecognition(unittest.TestCase):
         cls.recognition_module = RecognitionModule(tolerance=0.575)
         cls.recognition_module.set_product_data_source(cls.database_module)
 
-        cls.visualization_module = GUIModule()
+        cls.visualization_module = GUIModule(None, None)
 
     def test_known_faces(self):
         """

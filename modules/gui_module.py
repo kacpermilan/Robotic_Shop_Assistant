@@ -3,6 +3,52 @@ import numpy as np
 
 
 class GUIModule:
+    """
+    A class to manage the GUI display for a robotic shopping assistant using OpenCV.
+
+    Attributes:
+    -----------
+    video : cv2.VideoCapture
+        The video capture object for camera access.
+    frame_thickness : int
+        The thickness of the frames for drawn objects.
+    font_thickness : int
+        The thickness of the font used in text.
+    font_size : float
+        The size of the font used in text.
+    gui_colour : tuple
+        The colour of the GUI elements.
+    text_colour : tuple
+        The colour of the text in the GUI.
+    show_shopping_list : bool
+        Flag to control the visibility of the shopping list in the GUI.
+
+    Methods:
+    --------
+    get_image_frame(self)
+        Captures an image frame from the camera and returns it along with any key pressed.
+
+    display_detected_objects(self, image, detected_faces=None, detected_barcodes=None)
+        Draws detected faces and barcodes on the image frame.
+
+    toggle_shopping_list_visibility(self)
+        Toggles the visibility of the shopping list on the GUI.
+
+    render_gui(self, image, cart: list, total_cost)
+        Renders the GUI overlay on the image frame.
+
+    __mark_face(self, image, face_location, label)
+        Internal method to mark a detected face on the image frame.
+
+    __mark_barcode(self, image, barcode_location, label)
+        Internal method to mark a detected barcode on the image frame.
+
+    __name_to_color(string: str)
+        Static method to generate a color based on a string.
+
+    __darken_color(old_color: list[int], factor: float = 0.5)
+        Static method to darken a given color.
+    """
     def __init__(self, camera_width, camera_height, frame_thickness=2, font_thickness=2, font_size=0.6, gui_colour=(255, 255, 255)):
         self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         self.video.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
@@ -20,11 +66,17 @@ class GUIModule:
         cv2.destroyAllWindows()
 
     def get_image_frame(self):
+        """
+        Captures an image frame from the camera.
+        """
         ret, image = self.video.read()
         key_pressed = cv2.waitKey(1) & 0xFF
         return image, key_pressed
 
     def display_detected_objects(self, image, detected_faces=None, detected_barcodes=None):
+        """
+        Draws rectangles and labels for detected faces and barcodes on the image frame.
+        """
         if detected_barcodes is None:
             detected_barcodes = []
 
@@ -43,9 +95,15 @@ class GUIModule:
             self.__mark_barcode(image, barcode, label)
 
     def toggle_shopping_list_visibility(self):
+        """
+        Toggles the visibility of the shopping list on the GUI.
+        """
         self.show_shopping_list = not self.show_shopping_list
 
     def render_gui(self, image, cart: list, total_cost):
+        """
+        Renders the GUI overlay on the image frame, including the shopping list and total cost.
+        """
         gui = np.zeros_like(image, np.uint8)
         box_width = 200
         box_height = 50
@@ -55,6 +113,8 @@ class GUIModule:
 
         rect_x = 0
         rect_y = 0
+
+        # Shopping list
         if self.show_shopping_list:
             rect_height = image.shape[0]
             rect_width = image.shape[1] // 2
@@ -72,6 +132,7 @@ class GUIModule:
                             cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.text_colour, self.font_thickness)
                 element_y += 30
 
+        # Total cart cost
         text = f'Total: {total_cost:.2f} [PLN]'
         text_x = tc_box_x + 10
         text_y = tc_box_y + 30
