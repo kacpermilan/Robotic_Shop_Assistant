@@ -1,7 +1,7 @@
 # Robotic Shopping Assistant
 
 Robotic Shopping Assistant is a simple project, simulating the hypothetical robotic device, 
-that would be helping the customers during the shopping. 
+that would be capable of helping the customers during the shopping. 
 Its primary role is to serve me (repo's author) as a playground to implement various database and
 artificial intelligence related functionalities.
 
