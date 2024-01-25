@@ -8,14 +8,14 @@ from TTS.api import TTS
 
 
 class VoiceInterfaceModule:
-    def __init__(self, model_name):
+    def __init__(self, tts_model_name, stt_model_name):
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self.stt_queue = queue.Queue()
         self.tts_cache_file_name = "tts_cache.wav"
         self.stt_cache_file_name = "stt_cache.wav"
-        self.tts = TTS(model_name=model_name).to(device)
-        self.stt = whisper.load_model("base")
+        self.tts = TTS(tts_model_name).to(device)
+        self.stt = whisper.load_model(stt_model_name)
         self.audio = pyaudio.PyAudio()
 
     def __del__(self):

@@ -72,7 +72,7 @@ class TestProductRecognition(unittest.TestCase):
             cv2.destroyWindow(filename)
 
     def test_local_llm(self):
-        self.local_llm = LlmModule(llm_path=self.llm_path, mapping=None, layers_on_gpu=self.layers_on_gpu)
+        self.local_llm = LlmModule(llm_path=self.llm_path, layers_on_gpu=self.layers_on_gpu)
         output = self.local_llm.test_simple_completion()
         print(output['id'])
         print(output['object'])

@@ -42,7 +42,7 @@ class GUIModule:
 
             self.__mark_barcode(image, barcode, label)
 
-    def toogle_shopping_list_visibility(self):
+    def toggle_shopping_list_visibility(self):
         self.show_shopping_list = not self.show_shopping_list
 
     def render_gui(self, image, cart: list, total_cost):
@@ -78,7 +78,7 @@ class GUIModule:
         cv2.putText(image, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX,
                     self.font_size, self.text_colour, self.font_thickness)
 
-        cv2.imshow("Camera Video", image)
+        cv2.imshow("Robot's Sight", image)
 
     def __mark_face(self, image, face_location, label):
         """

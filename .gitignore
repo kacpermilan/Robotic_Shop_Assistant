@@ -2,6 +2,5 @@
 /known_faces/
 /unknown_faces/
 /llama.cpp/
-config.ini
-modules/tts_cache.wav
-modules/stt_cache.wav
+tts_cache.wav
+stt_cache.wav

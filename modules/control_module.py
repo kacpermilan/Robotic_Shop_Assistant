@@ -2,17 +2,17 @@ class ControlModule:
     def __init__(self, command_mapping):
         self.command_mapping = command_mapping
         self.key_to_command = {
-            ord("q"): "quit",
-            ord("r"): "refresh",
-            ord("a"): "add",
-            ord("c"): "clear",
-            ord("s"): "list",
-            ord("b"): "buy",
-            ord("v"): "voice",
+            ord("q"): "quit_application",
+            ord("r"): "refresh_data",
+            ord("a"): "add_product",
+            ord("c"): "clear_cart",
+            ord("s"): "toggle_shopping_list",
+            ord("b"): "finalize_transaction",
+            ord("v"): "voice_interface",
         }
 
     def execute_command(self, command):
-        if command == "quit":
+        if command == "quit_application":
             return True
 
         action = self.command_mapping.get(command)

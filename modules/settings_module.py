@@ -14,3 +14,4 @@ class SettingsModule:
         self.llm_path = config.get("ROBOTIC_SHOP_ASSISTANT", "LOCAL_LLM_PATH")
         self.layers_on_gpu = config.getint("ROBOTIC_SHOP_ASSISTANT", "N_GPU_LAYERS")
         self.tts_model_name = config.get("ROBOTIC_SHOP_ASSISTANT", "TTS_MODEL_NAME")
+        self.stt_model_name = config.get("ROBOTIC_SHOP_ASSISTANT", "STT_MODEL_NAME")

@@ -9,13 +9,13 @@ from modules.voice_interfce_module import VoiceInterfaceModule
 
 # Prepare command mapping
 command_mapping = {
-    "quit": lambda: None,
-    "refresh": lambda: voice_interface.say_and_execute("Refreshing data...", database.refresh_data),
-    "add": lambda: voice_interface.say_and_execute("Adding products to the cart...", shopping_cart.add_products_to_cart, detected_products),
-    "clear": lambda: voice_interface.say_and_execute("Clearing the cart...", shopping_cart.clear_cart),
-    "list": lambda: voice_interface.say_and_execute("Toggling the shopping list...", gui.toogle_shopping_list_visibility),
-    "buy": lambda: voice_interface.say_and_execute(f"{shopping_cart.products_total_cost:.2f} [PLN]", shopping_cart.finalize_transaction),
-    "voice": lambda: voice_interface.hear(),
+    "quit_application": lambda: None,
+    "refresh_data": lambda: voice_interface.say_and_execute("Refreshing data...", database.refresh_data),
+    "add_product": lambda: voice_interface.say_and_execute("Adding products to the cart...", shopping_cart.add_products_to_cart, detected_products),
+    "clear_cart": lambda: voice_interface.say_and_execute("Clearing the cart...", shopping_cart.clear_cart),
+    "toggle_shopping_list": lambda: voice_interface.say_and_execute("Toggling the shopping list...", gui.toggle_shopping_list_visibility),
+    "finalize_transaction": lambda: voice_interface.say_and_execute(f"{shopping_cart.products_total_cost:.2f} [PLN]", shopping_cart.finalize_transaction),
+    "voice_interface": lambda: voice_interface.hear(),
 }
 
 # Initialize components
@@ -23,10 +23,10 @@ SETTINGS = SettingsModule("config.ini")
 controller = ControlModule(command_mapping)
 database = DatabaseModule("localhost", "robotic_shop_assistant", SETTINGS.db_username, SETTINGS.db_password)
 gui = GUIModule(SETTINGS.camera_width, SETTINGS.camera_height)
-llm = LlmModule(llm_path=SETTINGS.llm_path, mapping=command_mapping, layers_on_gpu=SETTINGS.layers_on_gpu)
+llm = LlmModule(llm_path=SETTINGS.llm_path, available_functions=command_mapping, layers_on_gpu=SETTINGS.layers_on_gpu)
 recognition_module = RecognitionModule(tolerance=0.575)
 shopping_cart = ShoppingModule()
-voice_interface = VoiceInterfaceModule(SETTINGS.tts_model_name)
+voice_interface = VoiceInterfaceModule(SETTINGS.tts_model_name, SETTINGS.stt_model_name)
 
 # Prepare data
 database.refresh_data()
